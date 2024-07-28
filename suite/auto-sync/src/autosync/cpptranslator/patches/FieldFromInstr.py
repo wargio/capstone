@@ -59,7 +59,7 @@ class FieldFromInstr(Patch):
                 elif inst_type in [b"uint16_t"]:
                     inst_width = 2
                 else:
-                    log.fatal(f"Type {inst_type} no handled.")
+                    log.fatal(f"Type {inst_type} not handled.")
                     exit(1)
             else:
                 # Needs manual fix

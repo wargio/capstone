@@ -147,12 +147,22 @@
       "{LLVM_ROOT}/llvm/lib/Target/LoongArch/Disassembler/LoongArchDisassembler.cpp",
       "{LLVM_ROOT}/llvm/lib/Target/LoongArch/MCTargetDesc/LoongArchInstPrinter.cpp"
     ],
-    "templates_with_arg_deduction": [
-    ],
+    "templates_with_arg_deduction": [],
     "manually_edited_files": []
   },
   "Mips": {
-    "files_to_translate": [],
+    "files_to_translate": [
+      {
+        "in": "{LLVM_ROOT}/llvm/lib/Target/Mips/Disassembler/MipsDisassembler.cpp",
+        "out": "MipsDisassembler.c"
+      },{
+        "in": "{LLVM_ROOT}/llvm/lib/Target/Mips/MCTargetDesc/MipsInstPrinter.cpp",
+        "out": "MipsInstPrinter.c"
+      },{
+        "in": "{LLVM_ROOT}/llvm/lib/Target/Mips/MCTargetDesc/MipsInstPrinter.h",
+        "out": "MipsInstPrinter.h"
+      }
+    ],
     "files_for_template_search": [
       "{CPP_INC_OUT_DIR}/MipsGenDisassemblerTables.inc",
       "{CPP_INC_OUT_DIR}/MipsGenAsmWriter.inc"
