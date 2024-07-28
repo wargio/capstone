@@ -165,6 +165,7 @@
     ],
     "files_for_template_search": [
       "{CPP_INC_OUT_DIR}/MipsGenDisassemblerTables.inc",
+      "{LLVM_ROOT}/llvm/lib/Target/Mips/MCTargetDesc/MipsInstPrinter.cpp",
       "{CPP_INC_OUT_DIR}/MipsGenAsmWriter.inc"
     ],
     "templates_with_arg_deduction": [],
