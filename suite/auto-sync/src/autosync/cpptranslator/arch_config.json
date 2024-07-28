@@ -168,7 +168,26 @@
       "{LLVM_ROOT}/llvm/lib/Target/Mips/MCTargetDesc/MipsInstPrinter.cpp",
       "{CPP_INC_OUT_DIR}/MipsGenAsmWriter.inc"
     ],
-    "templates_with_arg_deduction": [],
+    "templates_with_arg_deduction": [
+      "DecodeINSVE_DF",
+      "DecodeDAHIDATIMMR6",
+      "DecodeDAHIDATI",
+      "DecodeAddiGroupBranch",
+      "DecodePOP35GroupBranchMMR6",
+      "DecodeDaddiGroupBranch",
+      "DecodePOP37GroupBranchMMR6",
+      "DecodePOP65GroupBranchMMR6",
+      "DecodePOP75GroupBranchMMR6",
+      "DecodeBlezlGroupBranch",
+      "DecodeBgtzlGroupBranch",
+      "DecodeBgtzGroupBranch",
+      "DecodeBlezGroupBranch",
+      "DecodeBgtzGroupBranchMMR6",
+      "DecodeBlezGroupBranchMMR6",
+      "DecodeDINS",
+      "DecodeDEXT",
+      "DecodeCRC"
+    ],
     "manually_edited_files": []
   }
 }
