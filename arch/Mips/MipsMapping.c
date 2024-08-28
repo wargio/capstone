@@ -92,6 +92,14 @@ const insn_map mips_insns[] = {
 #include "MipsGenCSMappingInsn.inc"
 };
 
+void Mips_set_instr_map_data(MCInst *MI) 
+{
+	map_cs_id(MI, mips_insns, ARR_SIZE(mips_insns));
+	map_implicit_reads(MI, mips_insns);
+	map_implicit_writes(MI, mips_insns);
+	map_groups(MI, mips_insns);
+}
+
 bool Mips_getInstruction(csh handle, const uint8_t *code, size_t code_len,
 			      MCInst *instr, uint16_t *size, uint64_t address,
 			      void *info)
@@ -105,6 +113,9 @@ bool Mips_getInstruction(csh handle, const uint8_t *code, size_t code_len,
 						    code_len, address, info,
 						    ud->mode)
 						    != MCDisassembler_Fail;
+	if (result) {
+		Mips_set_instr_map_data(instr);
+	}
 	*size = size64;
 	return result;
 }
@@ -143,12 +154,31 @@ static const map_insn_ops insn_operands[] = {
 #include "MipsGenCSMappingInsnOp.inc"
 };
 
-static void Mips_set_detail_op_imm(MCInst *MI, unsigned OpNum,
+static void Mips_set_detail_op_mem_reg(MCInst *MI, unsigned OpNum, mips_reg Reg)
+{
+	Mips_get_detail_op(MI, 0)->type = MIPS_OP_MEM;
+	Mips_get_detail_op(MI, 0)->mem.base = Reg;
+	Mips_get_detail_op(MI, 0)->access = map_get_op_access(MI, OpNum);
+}
+
+static void Mips_set_detail_op_mem_disp(MCInst *MI, unsigned OpNum, int64_t Imm)
+{
+	Mips_get_detail_op(MI, 0)->type = MIPS_OP_MEM;
+	Mips_get_detail_op(MI, 0)->mem.disp = Imm;
+	Mips_get_detail_op(MI, 0)->access = map_get_op_access(MI, OpNum);
+}
+
+void Mips_set_detail_op_imm(MCInst *MI, unsigned OpNum,
 				 mips_op_type ImmType, int64_t Imm)
 {
 	if (!detail_is_set(MI))
 		return;
-	assert((map_get_op_type(MI, OpNum) & ~CS_OP_MEM) == CS_OP_IMM);
+
+	if (doing_mem(MI)) {
+		Mips_set_detail_op_mem_disp(MI, OpNum, Imm);
+		return;
+	}
+
 	assert(ImmType == MIPS_OP_IMM);
 
 	Mips_get_detail_op(MI, 0)->type = ImmType;
@@ -157,10 +187,16 @@ static void Mips_set_detail_op_imm(MCInst *MI, unsigned OpNum,
 	Mips_inc_op_count(MI);
 }
 
-static void Mips_set_detail_op_reg(MCInst *MI, unsigned OpNum, mips_reg Reg)
+void Mips_set_detail_op_reg(MCInst *MI, unsigned OpNum, mips_reg Reg)
 {
 	if (!detail_is_set(MI))
 		return;
+
+	if (doing_mem(MI)) {
+		Mips_set_detail_op_mem_reg(MI, OpNum, Reg);
+		return;
+	}
+
 	assert((map_get_op_type(MI, OpNum) & ~CS_OP_MEM) == CS_OP_REG);
 
 	Mips_get_detail_op(MI, 0)->type = MIPS_OP_REG;
@@ -169,31 +205,33 @@ static void Mips_set_detail_op_reg(MCInst *MI, unsigned OpNum, mips_reg Reg)
 	Mips_inc_op_count(MI);
 }
 
-void Mips_add_cs_detail(MCInst *MI, int /* mips_op_group */ op_group,
-			     va_list args)
+void Mips_set_mem_access(MCInst *MI, bool status)
 {
 	if (!detail_is_set(MI))
 		return;
+	set_doing_mem(MI, status);
+	if (status) {
+		if (Mips_get_detail(MI)->op_count > 0 &&
+		    Mips_get_detail_op(MI, -1)->type == MIPS_OP_MEM &&
+		    Mips_get_detail_op(MI, -1)->mem.disp == 0) {
+			// Previous memory operand not done yet. Select it.
+			Mips_dec_op_count(MI);
+			return;
+		}
 
-	unsigned OpNum = va_arg(args, unsigned);
-	// Handle memory operands later
-	cs_op_type op_type = map_get_op_type(MI, OpNum) & ~CS_OP_MEM;
+		// Init a new one.
+		Mips_get_detail_op(MI, 0)->type = MIPS_OP_MEM;
+		Mips_get_detail_op(MI, 0)->mem.base = MIPS_REG_INVALID;
+		Mips_get_detail_op(MI, 0)->mem.disp = 0;
 
-	// Fill cs_detail
-	switch (op_group) {
-	default:
-		printf("ERROR: Operand group %d not handled!\n", op_group);
-		assert(0);
-	case Mips_OP_GROUP_Operand:
-		if (op_type == CS_OP_IMM) {
-			Mips_set_detail_op_imm(MI, OpNum, MIPS_OP_IMM,
-						    MCInst_getOpVal(MI, OpNum));
-		} else if (op_type == CS_OP_REG) {
-			Mips_set_detail_op_reg(MI, OpNum,
-						    MCInst_getOpVal(MI, OpNum));
-		} else
-			assert(0 && "Op type not handled.");
-		break;
+#ifndef CAPSTONE_DIET
+		uint8_t access =
+			map_get_op_access(MI, Mips_get_detail(MI)->op_count);
+		Mips_get_detail_op(MI, 0)->access = access;
+#endif
+	} else {
+		// done, select the next operand slot
+		Mips_inc_op_count(MI);
 	}
 }
 

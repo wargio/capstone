@@ -170,11 +170,15 @@ void printOperand(MCInst *MI, unsigned OpNo, SStream *O)
 {
 	MCOperand *Op = MCInst_getOperand(MI, (OpNo));
 	if (MCOperand_isReg(Op)) {
-		printRegName(O, MCOperand_getReg(Op));
+		MCRegister Reg = MCOperand_getReg(Op);
+		Mips_set_detail_op_reg(MI, OpNo, Reg);
+		printRegName(O, Reg);
 		return;
 	}
 
-	printInt64(O, MCOperand_getImm(Op));
+	int64_t Imm = MCOperand_getImm(Op);
+	Mips_set_detail_op_imm(MI, OpNo, MIPS_OP_IMM, Imm);
+	printInt64(O, Imm);
 }
 
 static void printJumpOperand(MCInst *MI, unsigned OpNo, SStream *O)
@@ -183,7 +187,9 @@ static void printJumpOperand(MCInst *MI, unsigned OpNo, SStream *O)
 	if (!MCOperand_isImm(Op))
 		return printOperand((MCInst *)MI, OpNo, O);
 
-	printInt64(O, MCOperand_getImm(Op));
+	int64_t Imm = MCOperand_getImm(Op);
+	Mips_set_detail_op_imm(MI, OpNo, MIPS_OP_IMM, Imm);
+	printInt64(O, Imm);
 }
 
 static void printBranchOperand(MCInst *MI, uint64_t Address, unsigned OpNo, SStream *O)
@@ -193,6 +199,7 @@ static void printBranchOperand(MCInst *MI, uint64_t Address, unsigned OpNo, SStr
 		return printOperand((MCInst *)MI, OpNo, O);
 
     uint64_t Target = Address + MCOperand_getImm(Op);
+	Mips_set_detail_op_imm(MI, OpNo, MIPS_OP_IMM, Target);
 	printInt64(O, Target);
 }
 
@@ -204,7 +211,8 @@ static void printBranchOperand(MCInst *MI, uint64_t Address, unsigned OpNo, SStr
 		if (MCOperand_isImm(MO)) { \
 			uint64_t Imm = MCOperand_getImm(MO); \
 			Imm &= (1 << Bits) - 1; \
-			printInt64(O, Imm); \
+			Mips_set_detail_op_imm(MI, opNum, MIPS_OP_IMM, Imm); \
+			printUInt64(O, Imm); \
 			return; \
 		} \
 \
@@ -221,7 +229,8 @@ static void printBranchOperand(MCInst *MI, uint64_t Address, unsigned OpNo, SStr
 			Imm -= Offset; \
 			Imm &= (1 << Bits) - 1; \
 			Imm += Offset; \
-			printInt64(O, Imm); \
+			Mips_set_detail_op_imm(MI, opNum, MIPS_OP_IMM, Imm); \
+			printUInt64(O, Imm); \
 			return; \
 		} \
 \
@@ -269,10 +278,12 @@ static void printMemOperand(MCInst *MI, int opNum, SStream *O)
 		break;
 	}
 
+	Mips_set_mem_access(MI, true);
 	printOperand((MCInst *)MI, opNum + 1, O);
 	SStream_concat0(O, "(");
 	printOperand((MCInst *)MI, opNum, O);
 	SStream_concat0(O, ")");
+	Mips_set_mem_access(MI, false);
 }
 
 static void printMemOperandEA(MCInst *MI, int opNum, SStream *O)

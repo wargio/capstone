@@ -32,17 +32,10 @@ bool Mips_getInstruction(csh handle, const uint8_t *code, size_t code_len,
 
 // cs_detail related functions
 void Mips_init_cs_detail(MCInst *MI);
-void Mips_add_cs_detail(MCInst *MI, int /* mips_op_group */ op_group,
-			     va_list args);
-static inline void add_cs_detail(MCInst *MI,
-				 int /* mips_op_group */ op_group, ...)
-{
-	if (!MI->flat_insn->detail)
-		return;
-	va_list args;
-	va_start(args, op_group);
-	Mips_add_cs_detail(MI, op_group, args);
-	va_end(args);
-}
+void Mips_set_detail_op_imm(MCInst *MI, unsigned OpNum,
+				 mips_op_type ImmType, int64_t Imm);
+void Mips_set_detail_op_reg(MCInst *MI, unsigned OpNum, mips_reg Reg);
+void Mips_set_mem_access(MCInst *MI, bool status);
+
 
 #endif // CS_MIPS_MAPPING_H
