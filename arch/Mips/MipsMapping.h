@@ -30,6 +30,10 @@ bool Mips_getInstruction(csh handle, const uint8_t *code, size_t code_len,
 			      MCInst *instr, uint16_t *size, uint64_t address,
 			      void *info);
 
+void Mips_reg_access(const cs_insn *insn, cs_regs regs_read,
+			uint8_t *regs_read_count, cs_regs regs_write,
+			uint8_t *regs_write_count);
+
 // cs_detail related functions
 void Mips_init_cs_detail(MCInst *MI);
 void Mips_set_detail_op_imm(MCInst *MI, unsigned OpNum,

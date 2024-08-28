@@ -27,7 +27,7 @@ cs_err Mips_global_init(cs_struct *ud)
 	ud->disasm = Mips_getInstruction;
 	ud->post_printer = NULL;
 #ifndef CAPSTONE_DIET
-	//ud->reg_access = Mips_reg_access;
+	ud->reg_access = Mips_reg_access;
 #endif
 
 	return CS_ERR_OK;
