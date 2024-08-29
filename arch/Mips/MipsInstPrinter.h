@@ -147,7 +147,6 @@ static bool printAlias2(const char *Str, const MCInst *MI, uint64_t Address,
 		unsigned OpNo0, unsigned OpNo1, SStream *OS,
 		bool IsBranch);
 static bool printAlias3(const MCInst *MI, uint64_t Address, SStream *OS);
-static void printSaveRestore(MCInst *MI, SStream *O);
 static void printRegisterList(MCInst *MI, int opNum, SStream *O);
 
 #endif

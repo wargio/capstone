@@ -117,53 +117,9 @@ static void printRegName(SStream *OS, MCRegister Reg)
 	SStream_concat0(OS, Mips_LLVM_getRegisterName(Reg));
 }
 
-static void printInst(MCInst *MI, uint64_t Address, SStream *O)
-{
-	switch (MCInst_getOpcode(MI)) {
-	default:
-		break;
-	case Mips_RDHWR:
-	case Mips_RDHWR64:
-		SStream_concat0(O, "\t.set\tpush\n");
-		SStream_concat0(O, "\t.set\tmips32r2\n");
-		break;
-	case Mips_Save16:
-		SStream_concat0(O, "\tsave\t");
-		printSaveRestore(MI, O);
-		SStream_concat0(O, " # 16 bit inst\n");
-		return;
-	case Mips_SaveX16:
-		SStream_concat0(O, "\tsave\t");
-		printSaveRestore(MI, O);
-		SStream_concat0(O, "\n");
-		return;
-	case Mips_Restore16:
-		SStream_concat0(O, "\trestore\t");
-		printSaveRestore(MI, O);
-		SStream_concat0(O, " # 16 bit inst\n");
-		return;
-	case Mips_RestoreX16:
-		SStream_concat0(O, "\trestore\t");
-		printSaveRestore(MI, O);
-		SStream_concat0(O, "\n");
-		return;
-	}
-
-	// Try to print any aliases first.
+void Mips_LLVM_printInst(MCInst *MI, uint64_t Address, SStream *O) {
 	if (!printAliasInstr(MI, Address, O) && !printAlias3(MI, Address, O))
 		printInstruction(MI, Address, O);
-
-	switch (MCInst_getOpcode(MI)) {
-	default:
-		break;
-	case Mips_RDHWR:
-	case Mips_RDHWR64:
-		SStream_concat0(O, "\n\t.set\tpop");
-	}
-}
-
-void Mips_LLVM_printInst(MCInst *MI, uint64_t Address, SStream *O) {
-	printInst(MI, Address, O);
 }
 
 void printOperand(MCInst *MI, unsigned OpNo, SStream *O)
@@ -395,19 +351,6 @@ static bool printAlias3(const MCInst *MI, uint64_t Address, SStream *OS)
 		       printAlias2("move", MI, Address, 0, 1, OS, false);
 	default:
 		return false;
-	}
-}
-
-static void printSaveRestore(MCInst *MI, SStream *O)
-{
-	for (unsigned i = 0, e = MCInst_getNumOperands(MI); i != e; ++i) {
-		if (i != 0)
-			SStream_concat0(O, ", ");
-		if (MCOperand_isReg(MCInst_getOperand(MI, (i))))
-			printRegName(O, MCOperand_getReg(
-						MCInst_getOperand(MI, (i))));
-		else
-			CONCAT(printUImm, 16)(MI, i, O);
 	}
 }
 
