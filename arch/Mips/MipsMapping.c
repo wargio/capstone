@@ -150,6 +150,17 @@ void Mips_reg_access(const cs_insn *insn, cs_regs regs_read,
 
 void Mips_set_instr_map_data(MCInst *MI) 
 {
+	// Fixes for missing groups.
+	if (MCInst_getOpcode(MI) == Mips_JR) {
+		unsigned Reg = MCInst_getOpVal(MI, 0);
+		switch(Reg) {
+		case MIPS_REG_RA:
+		case MIPS_REG_RA_64:
+			add_group(MI, MIPS_GRP_RET);
+			break;
+		}
+	}
+
 	map_cs_id(MI, mips_insns, ARR_SIZE(mips_insns));
 	map_implicit_reads(MI, mips_insns);
 	map_implicit_writes(MI, mips_insns);
