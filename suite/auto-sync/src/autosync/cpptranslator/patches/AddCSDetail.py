@@ -39,15 +39,6 @@ class AddCSDetail(Patch):
     def __init__(self, priority: int, arch: str):
         super().__init__(priority)
         self.arch = arch
-        self.apply_only_to = {
-            "files": [
-                "ARMInstPrinter.cpp",
-                "PPCInstPrinter.cpp",
-                "AArch64InstPrinter.cpp",
-                "LoongArchInstPrinter.cpp",
-            ],
-            "archs": list(),
-        }
 
     def get_search_pattern(self) -> str:
         return (
