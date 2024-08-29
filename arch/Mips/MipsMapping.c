@@ -38,7 +38,8 @@ void Mips_init_mri(MCRegisterInfo *MRI)
 
 const char *Mips_reg_name(csh handle, unsigned int reg)
 {
-	return Mips_LLVM_getRegisterName(reg);
+	int syntax_opt = ((cs_struct *)(uintptr_t)handle)->syntax;
+	return Mips_LLVM_getRegisterName(reg, syntax_opt & CS_OPT_SYNTAX_NOREGNAME);
 }
 
 void Mips_get_insn_id(cs_struct *h, cs_insn *insn, unsigned int id)
@@ -175,10 +176,8 @@ bool Mips_getInstruction(csh handle, const uint8_t *code, size_t code_len,
 	Mips_init_cs_detail(instr);
 	instr->MRI = (MCRegisterInfo *)info;
 
-	cs_struct *ud = (cs_struct *)handle;
 	bool result = Mips_LLVM_getInstruction(instr, &size64, code,
-						    code_len, address, info,
-						    ud->mode)
+						    code_len, address, info)
 						    != MCDisassembler_Fail;
 	if (result) {
 		Mips_set_instr_map_data(instr);

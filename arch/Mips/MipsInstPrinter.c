@@ -109,12 +109,15 @@ static const char *MipsFCCToString(Mips_CondCode CC)
 	assert(0 && "Impossible condition code!");
 }
 
-const char *Mips_LLVM_getRegisterName(unsigned RegNo);
+const char *Mips_LLVM_getRegisterName(unsigned RegNo, bool noRegName);
 
-static void printRegName(SStream *OS, MCRegister Reg)
+static void printRegName(MCInst *MI, SStream *OS, MCRegister Reg)
 {
-	SStream_concat1(OS, '$');
-	SStream_concat0(OS, Mips_LLVM_getRegisterName(Reg));
+	int syntax_opt = MI->csh->syntax;
+	if (!(syntax_opt & CS_OPT_SYNTAX_NO_DOLLAR)) {
+		SStream_concat1(OS, '$');
+	}
+	SStream_concat0(OS, Mips_LLVM_getRegisterName(Reg, syntax_opt & CS_OPT_SYNTAX_NOREGNAME));
 }
 
 void Mips_LLVM_printInst(MCInst *MI, uint64_t Address, SStream *O) {
@@ -128,7 +131,7 @@ void printOperand(MCInst *MI, unsigned OpNo, SStream *O)
 	if (MCOperand_isReg(Op)) {
 		MCRegister Reg = MCOperand_getReg(Op);
 		Mips_set_detail_op_reg(MI, OpNo, Reg);
-		printRegName(O, Reg);
+		printRegName(MI, O, Reg);
 		return;
 	}
 
@@ -361,14 +364,17 @@ static void printRegisterList(MCInst *MI, int opNum, SStream *O)
 	for (int i = opNum, e = MCInst_getNumOperands(MI) - 2; i != e; ++i) {
 		if (i != opNum)
 			SStream_concat0(O, ", ");
-		printRegName(O, MCOperand_getReg(MCInst_getOperand(MI, (i))));
+		printRegName(MI, O, MCOperand_getReg(MCInst_getOperand(MI, (i))));
 	}
 }
 
-const char *Mips_LLVM_getRegisterName(unsigned RegNo)
+const char *Mips_LLVM_getRegisterName(unsigned RegNo, bool noRegName)
 {
 	if (RegNo >= MIPS_REG_ENDING) {
 		return NULL;
+	}
+	if (noRegName) {
+		return getRegisterName(RegNo);
 	}
 	switch(RegNo) {
 	case MIPS_REG_AT:

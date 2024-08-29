@@ -226,7 +226,7 @@ bool Mips_getFeatureBits(unsigned int mode, unsigned int feature)
 }
 
 static DecodeStatus getInstruction(MCInst *Instr, uint64_t *Size, const uint8_t *Bytes,
-			    size_t BytesLen, uint64_t Address, SStream *CStream, cs_mode mode);
+			    size_t BytesLen, uint64_t Address, SStream *CStream);
 
 // end anonymous namespace
 
@@ -1247,12 +1247,13 @@ static DecodeStatus readInstruction32(const uint8_t *Bytes, size_t BytesLen,
 }
 
 static DecodeStatus getInstruction(MCInst *Instr, uint64_t *Size, const uint8_t *Bytes,
-			    size_t BytesLen, uint64_t Address, SStream *CStream, cs_mode mode)
+			    size_t BytesLen, uint64_t Address, SStream *CStream)
 {
 	uint32_t Insn;
 	DecodeStatus Result;
 	*Size = 0;
 
+	cs_mode mode = Instr->csh->mode;
 	bool IsBigEndian = mode & CS_MODE_BIG_ENDIAN;
 	bool IsMicroMips = Mips_getFeatureBits(mode, Mips_FeatureMicroMips);
 	bool IsMips32r6 = Mips_getFeatureBits(mode, Mips_FeatureMips32r6);
@@ -1277,7 +1278,7 @@ static DecodeStatus getInstruction(MCInst *Instr, uint64_t *Size, const uint8_t 
 			// 16-bit instructions.
 			Result = decodeInstruction_2(DecoderTableMicroMipsR616,
 						     Instr, Insn, Address,
-						     &mode);
+						     NULL);
 			if (Result != MCDisassembler_Fail) {
 				*Size = 2;
 				return Result;
@@ -1287,7 +1288,7 @@ static DecodeStatus getInstruction(MCInst *Instr, uint64_t *Size, const uint8_t 
 		// Calling the auto-generated decoder function for microMIPS 16-bit
 		// instructions.
 		Result = decodeInstruction_2(DecoderTableMicroMips16, Instr,
-					     Insn, Address, &mode);
+					     Insn, Address, NULL);
 		if (Result != MCDisassembler_Fail) {
 			*Size = 2;
 			return Result;
@@ -1302,7 +1303,7 @@ static DecodeStatus getInstruction(MCInst *Instr, uint64_t *Size, const uint8_t 
 			// Calling the auto-generated decoder function.
 			Result = decodeInstruction_4(DecoderTableMicroMipsR632,
 						     Instr, Insn, Address,
-						     &mode);
+						     NULL);
 			if (Result != MCDisassembler_Fail) {
 				*Size = 4;
 				return Result;
@@ -1311,7 +1312,7 @@ static DecodeStatus getInstruction(MCInst *Instr, uint64_t *Size, const uint8_t 
 
 		// Calling the auto-generated decoder function.
 		Result = decodeInstruction_4(DecoderTableMicroMips32, Instr,
-					     Insn, Address, &mode);
+					     Insn, Address, NULL);
 		if (Result != MCDisassembler_Fail) {
 			*Size = 4;
 			return Result;
@@ -1320,7 +1321,7 @@ static DecodeStatus getInstruction(MCInst *Instr, uint64_t *Size, const uint8_t 
 		if (IsFP64) {
 			Result =
 				decodeInstruction_4(DecoderTableMicroMipsFP6432,
-						    Instr, Insn, Address, &mode);
+						    Instr, Insn, Address, NULL);
 			if (Result != MCDisassembler_Fail) {
 				*Size = 4;
 				return Result;
@@ -1349,70 +1350,70 @@ static DecodeStatus getInstruction(MCInst *Instr, uint64_t *Size, const uint8_t 
 
 	if (HasCOP3) {
 		Result = decodeInstruction_4(DecoderTableCOP3_32, Instr, Insn,
-					     Address, &mode);
+					     Address, NULL);
 		if (Result != MCDisassembler_Fail)
 			return Result;
 	}
 
 	if (IsMips32r6 && IsGP64) {
 		Result = decodeInstruction_4(DecoderTableMips32r6_64r6_GP6432,
-					     Instr, Insn, Address, &mode);
+					     Instr, Insn, Address, NULL);
 		if (Result != MCDisassembler_Fail)
 			return Result;
 	}
 
 	if (IsMips32r6 && IsPTR64) {
 		Result = decodeInstruction_4(DecoderTableMips32r6_64r6_PTR6432,
-					     Instr, Insn, Address, &mode);
+					     Instr, Insn, Address, NULL);
 		if (Result != MCDisassembler_Fail)
 			return Result;
 	}
 
 	if (IsMips32r6) {
 		Result = decodeInstruction_4(DecoderTableMips32r6_64r632, Instr,
-					     Insn, Address, &mode);
+					     Insn, Address, NULL);
 		if (Result != MCDisassembler_Fail)
 			return Result;
 	}
 
 	if (IsMips2 && IsPTR64) {
 		Result = decodeInstruction_4(DecoderTableMips32_64_PTR6432,
-					     Instr, Insn, Address, &mode);
+					     Instr, Insn, Address, NULL);
 		if (Result != MCDisassembler_Fail)
 			return Result;
 	}
 
 	if (IsCnMips) {
 		Result = decodeInstruction_4(DecoderTableCnMips32, Instr, Insn,
-					     Address, &mode);
+					     Address, NULL);
 		if (Result != MCDisassembler_Fail)
 			return Result;
 	}
 
 	if (IsCnMipsP) {
 		Result = decodeInstruction_4(DecoderTableCnMipsP32, Instr, Insn,
-					     Address, &mode);
+					     Address, NULL);
 		if (Result != MCDisassembler_Fail)
 			return Result;
 	}
 
 	if (IsGP64) {
 		Result = decodeInstruction_4(DecoderTableMips6432, Instr, Insn,
-					     Address, &mode);
+					     Address, NULL);
 		if (Result != MCDisassembler_Fail)
 			return Result;
 	}
 
 	if (IsFP64) {
 		Result = decodeInstruction_4(DecoderTableMipsFP6432, Instr,
-					     Insn, Address, &mode);
+					     Insn, Address, NULL);
 		if (Result != MCDisassembler_Fail)
 			return Result;
 	}
 
 	// Calling the auto-generated decoder function.
 	Result = decodeInstruction_4(DecoderTableMips32, Instr, Insn, Address,
-				     &mode);
+				     NULL);
 	if (Result != MCDisassembler_Fail)
 		return Result;
 
@@ -1487,7 +1488,7 @@ static DecodeStatus DecodePtrRegisterClass(MCInst *Inst, unsigned RegNo,
 					   uint64_t Address,
 					   const void *Decoder)
 {
-	if (Mips_getFeatureBits(*((cs_mode*)Decoder), Mips_FeatureGP64Bit))
+	if (Mips_getFeatureBits(Inst->csh->mode, Mips_FeatureGP64Bit))
 		return DecodeGPR64RegisterClass(Inst, RegNo, Address, Decoder);
 
 	return DecodeGPR32RegisterClass(Inst, RegNo, Address, Decoder);
@@ -2517,7 +2518,7 @@ static DecodeStatus DecodeMovePOperands(MCInst *Inst, unsigned Insn,
 		return MCDisassembler_Fail;
 
 	unsigned RegRs;
-	if (*((cs_mode*)Decoder) & CS_MODE_MIPS32R6)
+	if (Inst->csh->mode & CS_MODE_MIPS32R6)
 		RegRs = fieldFromInstruction_4(Insn, 0, 2) |
 			(fieldFromInstruction_4(Insn, 3, 1) << 2);
 	else
@@ -2694,7 +2695,7 @@ static DecodeStatus DecodeFIXMEInstruction(MCInst *Inst, unsigned Insn,
 }
 
 DecodeStatus Mips_LLVM_getInstruction(MCInst *Instr, uint64_t *Size, const uint8_t *Bytes,
-			    size_t BytesLen, uint64_t Address, SStream *CStream, cs_mode mode)
+			    size_t BytesLen, uint64_t Address, SStream *CStream)
 {
-	return getInstruction(Instr, Size, Bytes, BytesLen, Address, CStream, mode);
+	return getInstruction(Instr, Size, Bytes, BytesLen, Address, CStream);
 }

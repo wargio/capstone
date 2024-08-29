@@ -12,10 +12,10 @@
 #include "../../SStream.h"
 #include "capstone/capstone.h"
 
-const char *Mips_LLVM_getRegisterName(unsigned RegNo);
+const char *Mips_LLVM_getRegisterName(unsigned RegNo, bool noRegName);
 void Mips_LLVM_printInst(MCInst *MI, uint64_t Address, SStream *O);
 DecodeStatus Mips_LLVM_getInstruction(MCInst *Instr, uint64_t *Size,
 				const uint8_t *Bytes, size_t BytesLen,
-				uint64_t Address, SStream *CStream, cs_mode mode);
+				uint64_t Address, SStream *CStream);
 
 #endif // CS_MIPS_LINKAGE_H
