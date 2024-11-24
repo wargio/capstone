@@ -37,6 +37,7 @@ Version 6.0.0-Alpha2: November 24th, 2024
 
 **Full Changelog**: https://github.com/capstone-engine/capstone/compare/6.0.0-Alpha1...6.0.0-Alpha2
 
+
 -----------------------------
 Version 6.0.0-Alpha1: September 30th, 2024
 
@@ -200,6 +201,7 @@ For an exhaustive list, see the release guide at https://github.com/capstone-eng
 * @wargio made their first contribution in https://github.com/capstone-engine/capstone/pull/2460
 
 **Full Changelog**: https://github.com/capstone-engine/capstone/compare/5.0.3...6.0.0-Alpha1
+
 
 --------------------------------
 Version 5.0.2: August 20th, 2024
