@@ -2362,6 +2362,10 @@ static MnemonicBitsInfo getMnemonic(MCInst *MI, SStream *O) {
     2147517510U,	// INSRWI_rec
     19240U,	// KILL_PAIR
     67145052U,	// LAx
+    100702249U,	// LI
+    100702249U,	// LI8
+    100708146U,	// LIS
+    100708146U,	// LIS8
     19459U,	// LIWAX
     19567U,	// LIWZX
     2147522415U,	// PSUBI
@@ -3330,10 +3334,6 @@ static MnemonicBitsInfo getMnemonic(MCInst *MI, SStream *O) {
     2147532341U,	// LHZXTLS
     2147532341U,	// LHZXTLS_
     2147532341U,	// LHZXTLS_32
-    100702249U,	// LI
-    100702249U,	// LI8
-    100708146U,	// LIS
-    100708146U,	// LIS8
     67155379U,	// LMW
     67152444U,	// LQ
     134265721U,	// LQARX
@@ -5389,6 +5389,10 @@ static MnemonicBitsInfo getMnemonic(MCInst *MI, SStream *O) {
     516U,	// INSRWI_rec
     0U,	// KILL_PAIR
     0U,	// LAx
+    0U,	// LI
+    0U,	// LI8
+    0U,	// LIS
+    0U,	// LIS8
     0U,	// LIWAX
     0U,	// LIWZX
     136U,	// PSUBI
@@ -6357,10 +6361,6 @@ static MnemonicBitsInfo getMnemonic(MCInst *MI, SStream *O) {
     144U,	// LHZXTLS
     144U,	// LHZXTLS_
     144U,	// LHZXTLS_32
-    0U,	// LI
-    0U,	// LI8
-    0U,	// LIS
-    0U,	// LIS8
     0U,	// LMW
     0U,	// LQ
     0U,	// LQARX
@@ -8416,6 +8416,10 @@ static MnemonicBitsInfo getMnemonic(MCInst *MI, SStream *O) {
     0U,	// INSRWI_rec
     0U,	// KILL_PAIR
     0U,	// LAx
+    0U,	// LI
+    0U,	// LI8
+    0U,	// LIS
+    0U,	// LIS8
     0U,	// LIWAX
     0U,	// LIWZX
     0U,	// PSUBI
@@ -9384,10 +9388,6 @@ static MnemonicBitsInfo getMnemonic(MCInst *MI, SStream *O) {
     0U,	// LHZXTLS
     0U,	// LHZXTLS_
     0U,	// LHZXTLS_32
-    0U,	// LI
-    0U,	// LI8
-    0U,	// LIS
-    0U,	// LIS8
     0U,	// LMW
     0U,	// LQ
     0U,	// LQARX
@@ -11471,7 +11471,7 @@ static void printInstruction(MCInst *MI, uint64_t Address, SStream *O) {
     return;
     break;
   case 3:
-    // SUBPCIS, LI, LI8, LIS, LIS8
+    // LI, LI8, LIS, LIS8, SUBPCIS
     printS16ImmOperand(MI, 1, O);
     return;
     break;
