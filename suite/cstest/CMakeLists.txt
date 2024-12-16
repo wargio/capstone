@@ -1,15 +1,20 @@
 cmake_minimum_required(VERSION 3.15)
 
+# Enable DOWNLOAD_EXTRACT_TIMESTAMP
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+endif()
+
 include(ExternalProject)
 find_library(libyaml
     NAMES libyaml yaml
     REQUIRED)
 set(CMOCKA_LIB_FILE "${CMAKE_CURRENT_BINARY_DIR}/extern/src/cmocka_ext-build/src/libcmocka.a")
+
 ExternalProject_Add(cmocka_ext
     PREFIX extern
     URL "https://cmocka.org/files/1.1/cmocka-1.1.7.tar.xz"
     URL_HASH SHA256=810570eb0b8d64804331f82b29ff47c790ce9cd6b163e98d47a4807047ecad82
-    DOWNLOAD_EXTRACT_TIMESTAMP true
     CONFIGURE_COMMAND cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../cmocka_ext/
     BUILD_COMMAND cmake --build . --config Release
     BUILD_BYPRODUCTS "${CMOCKA_LIB_FILE}"
@@ -27,7 +32,6 @@ ExternalProject_Add(libcyaml_ext
     PREFIX extern
     URL "https://github.com/tlsa/libcyaml/archive/refs/tags/v1.4.2.tar.gz"
     URL_HASH SHA256=3211b2a0589ebfe02c563c96adce9246c0787be2af30353becbbd362998d16dc
-    DOWNLOAD_EXTRACT_TIMESTAMP true
     CONFIGURE_COMMAND ""
     BUILD_COMMAND make VARIANT=${LIBCYAML_VARIANT} PKG_CONFIG=pkg-config
     BUILD_BYPRODUCTS "${LIBCYAML_LIB_FILE}"
