@@ -495,7 +495,9 @@ static bpf_insn op2insn_ld_ebpf(unsigned opcode)
 #define COMPLEX_CASE(c) \
 	case BPF_ATOMIC_##c | BPF_MODE_FETCH: \
 		if (BPF_SIZE(opcode) == BPF_SIZE_DW) \
-			return BPF_INS_A##c##64;
+			return BPF_INS_A##c##64; \
+		else \
+			return BPF_INS_INVALID;
 
 #define CASE(c) \
 	case BPF_SIZE_##c: \
@@ -524,7 +526,7 @@ static bpf_insn op2insn_st(unsigned opcode, const uint32_t imm)
 			ALU_CASE_FETCH(XOR);
 			COMPLEX_CASE(XCHG);
 			COMPLEX_CASE(CMPXCHG);
-		default: // Could only be reached if complex atomic operation is used without fetch modifier, or not as DW
+		default: // Reached if complex atomic operation is used without fetch modifier
 			return BPF_INS_INVALID;
 		}
 	}
