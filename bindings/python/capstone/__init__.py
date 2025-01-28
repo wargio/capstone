@@ -788,7 +788,7 @@ class CsInsn(object):
     def __init__(self, cs, all_info):
         self._raw = copy_ctypes(all_info)
         self._cs = cs
-        if self._cs._detail and self._raw.id != 0:
+        if self._cs._detail and not self.is_invalid_insn():
             # save detail
             self._raw.detail = ctypes.pointer(all_info.detail._type_())
             ctypes.memmove(ctypes.byref(self._raw.detail[0]), ctypes.byref(all_info.detail[0]),
@@ -796,6 +796,14 @@ class CsInsn(object):
 
     def __repr__(self):
         return '<CsInsn 0x%x [%s]: %s %s>' % (self.address, self.bytes.hex(), self.mnemonic, self.op_str)
+
+    # return if the instruction is invalid
+    def is_invalid_insn(self):
+        arch = self._cs.arch
+        if arch == CS_ARCH_EVM:
+            return self.id == evm.EVM_INS_INVALID
+        else:
+            return self.id == 0
 
     # return instruction's ID.
     @property
@@ -853,7 +861,7 @@ class CsInsn(object):
     # return list of all implicit registers being read.
     @property
     def regs_read(self):
-        if self._raw.id == 0:
+        if self.is_invalid_insn():
             raise CsError(CS_ERR_SKIPDATA)
 
         if self._cs._diet:
@@ -868,7 +876,7 @@ class CsInsn(object):
     # return list of all implicit registers being modified
     @property
     def regs_write(self):
-        if self._raw.id == 0:
+        if self.is_invalid_insn():
             raise CsError(CS_ERR_SKIPDATA)
 
         if self._cs._diet:
@@ -883,7 +891,7 @@ class CsInsn(object):
     # return list of semantic groups this instruction belongs to.
     @property
     def groups(self):
-        if self._raw.id == 0:
+        if self.is_invalid_insn():
             raise CsError(CS_ERR_SKIPDATA)
 
         if self._cs._diet:
@@ -898,7 +906,7 @@ class CsInsn(object):
     # return whether instruction has writeback operands.
     @property
     def writeback(self):
-        if self._raw.id == 0:
+        if self.is_invalid_insn():
             raise CsError(CS_ERR_SKIPDATA)
 
         if self._cs._diet:
@@ -911,7 +919,7 @@ class CsInsn(object):
         raise CsError(CS_ERR_DETAIL)
 
     def __gen_detail(self):
-        if self._raw.id == 0:
+        if self.is_invalid_insn():
             # do nothing in skipdata mode
             return
 
@@ -980,7 +988,7 @@ class CsInsn(object):
         if 'operands' not in _dict:
             self.__gen_detail()
         if name not in _dict:
-            if self._raw.id == 0:
+            if self.is_invalid_insn():
                 raise CsError(CS_ERR_SKIPDATA)
             raise AttributeError(f"'CsInsn' has no attribute '{name}'")
         return _dict[name]
@@ -1003,7 +1011,7 @@ class CsInsn(object):
             # Diet engine cannot provide instruction name
             raise CsError(CS_ERR_DIET)
 
-        if self._raw.id == 0:
+        if self.is_invalid_insn():
             return default
 
         return _ascii_name_or_default(_cs.cs_insn_name(self._cs.csh, self.id), default)
@@ -1018,7 +1026,7 @@ class CsInsn(object):
 
     # verify if this insn belong to group with id as @group_id
     def group(self, group_id):
-        if self._raw.id == 0:
+        if self.is_invalid_insn():
             raise CsError(CS_ERR_SKIPDATA)
 
         if self._cs._diet:
@@ -1029,7 +1037,7 @@ class CsInsn(object):
 
     # verify if this instruction implicitly read register @reg_id
     def reg_read(self, reg_id):
-        if self._raw.id == 0:
+        if self.is_invalid_insn():
             raise CsError(CS_ERR_SKIPDATA)
 
         if self._cs._diet:
@@ -1040,7 +1048,7 @@ class CsInsn(object):
 
     # verify if this instruction implicitly modified register @reg_id
     def reg_write(self, reg_id):
-        if self._raw.id == 0:
+        if self.is_invalid_insn():
             raise CsError(CS_ERR_SKIPDATA)
 
         if self._cs._diet:
@@ -1051,7 +1059,7 @@ class CsInsn(object):
 
     # return number of operands having same operand type @op_type
     def op_count(self, op_type):
-        if self._raw.id == 0:
+        if self.is_invalid_insn():
             raise CsError(CS_ERR_SKIPDATA)
 
         c = 0
@@ -1062,7 +1070,7 @@ class CsInsn(object):
 
     # get the operand at position @position of all operands having the same type @op_type
     def op_find(self, op_type, position):
-        if self._raw.id == 0:
+        if self.is_invalid_insn():
             raise CsError(CS_ERR_SKIPDATA)
 
         c = 0
@@ -1075,7 +1083,7 @@ class CsInsn(object):
     # Return (list-of-registers-read, list-of-registers-modified) by this instructions.
     # This includes all the implicit & explicit registers.
     def regs_access(self):
-        if self._raw.id == 0:
+        if self.is_invalid_insn():
             raise CsError(CS_ERR_SKIPDATA)
 
         regs_read = (ctypes.c_uint16 * 64)()
