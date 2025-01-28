@@ -12,6 +12,7 @@ TARGETS_LLVM_NAMING = [
     "Mips",
     "Xtensa",
     "TriCore",
+    "ARC",
 ]
 
 # Names of the target architecture as they are used in code and pretty much everywhere else.
@@ -25,6 +26,7 @@ ARCH_LLVM_NAMING = [
     "Mips",
     "Xtensa",
     "TriCore",
+    "ARC",
 ]
 
 # Maps the target full name to the name used in code (and pretty much everywhere else).
@@ -38,6 +40,7 @@ TARGET_TO_IN_CODE_NAME = {
     "Mips": "Mips",
     "Xtensa": "Xtensa",
     "TriCore": "TriCore",
+    "ARC": "ARC",
     "ARCH": "ARCH",  # For testing
 }
 
@@ -52,5 +55,6 @@ TARGET_TO_DIR_NAME = {
     "Mips": "Mips",
     "Xtensa": "Xtensa",
     "TriCore": "TriCore",
+    "ARC": "ARC",
     "ARCH": "ARCH",  # For testing
 }

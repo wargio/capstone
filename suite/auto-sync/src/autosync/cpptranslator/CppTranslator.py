@@ -50,6 +50,7 @@ from autosync.cpptranslator.patches.IsPredicate import IsPredicate
 from autosync.cpptranslator.patches.IsRegImm import IsOperandRegImm
 from autosync.cpptranslator.patches.LLVMFallThrough import LLVMFallThrough
 from autosync.cpptranslator.patches.LLVMunreachable import LLVMUnreachable
+from autosync.cpptranslator.patches.BadConditionCode import BadConditionCode
 from autosync.cpptranslator.patches.LLVM_DEBUG import LLVM_DEBUG
 from autosync.cpptranslator.patches.MethodToFunctions import MethodToFunction
 from autosync.cpptranslator.patches.MethodTypeQualifier import MethodTypeQualifier
@@ -154,6 +155,7 @@ class Translator:
         Assert.__name__: 0,  # ◁─────────┐ The llvm_unreachable calls are replaced with asserts.
         LLVMUnreachable.__name__: 1,  # ─┘ Those assert should stay.
         LLVMFallThrough.__name__: 0,
+        BadConditionCode.__name__: 0,
         LLVM_DEBUG.__name__: 0,
         DeclarationInConditionalClause.__name__: 0,
         StreamOperations.__name__: 0,
@@ -289,6 +291,8 @@ class Translator:
                     patch = Assert(p)
                 case LLVMFallThrough.__name__:
                     patch = LLVMFallThrough(p)
+                case BadConditionCode.__name__:
+                    patch = BadConditionCode(p)
                 case DeclarationInConditionalClause.__name__:
                     patch = DeclarationInConditionalClause(p)
                 case OutStreamParam.__name__:

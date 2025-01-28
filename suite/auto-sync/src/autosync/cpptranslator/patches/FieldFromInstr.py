@@ -47,14 +47,20 @@ class FieldFromInstr(Patch):
         else:
             # Get the Val/Inst parameter.
             # Its type determines the instruction width.
-            inst_param: Node = param_list_caller.named_children[1]
+            if len(param_list_caller.named_children) == 1:
+                # If function just return fieldFromInstruction(...)
+                inst_param: Node = param_list_caller.named_children[0]
+            else:
+                inst_param = param_list_caller.named_children[1]
             inst_param_text = get_text(src, inst_param.start_byte, inst_param.end_byte)
 
             # Search for the 'Inst' parameter and determine its type
             # and with it the width of the instruction.
             inst_type = inst_param_text.split(b" ")[0]
             if inst_type:
-                if inst_type in [b"unsigned", b"uint32_t"]:
+                if inst_type in [b"uint64_t"]:
+                    inst_width = b"8"
+                elif inst_type in [b"unsigned", b"uint32_t"]:
                     inst_width = b"4"
                 elif inst_type in [b"uint16_t"]:
                     inst_width = b"2"

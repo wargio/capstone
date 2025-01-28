@@ -70,6 +70,8 @@ class Includes(Patch):
                 return res + get_SystemZ_includes(filename) + get_general_macros()
             case "Xtensa":
                 return res + get_Xtensa_includes(filename) + get_general_macros()
+            case "ARC":
+                return res + get_ARC_includes(filename) + get_general_macros()
             case "TEST_ARCH":
                 return res + b"test_output"
             case _:
@@ -414,6 +416,33 @@ def get_Xtensa_includes(filename: str) -> bytes:
         """
         case _:
             return b""
+
+
+def get_ARC_includes(filename: str) -> bytes:
+    match filename:
+        case "ARCDisassembler.cpp":
+            return (
+                b'#include "../../MCInst.h"\n'
+                + b'#include "../../SStream.h"\n'
+                + b'#include "../../MCDisassembler.h"\n'
+                + b'#include "../../MCFixedLenDisassembler.h"\n'
+                + b'#include "../../MathExtras.h"\n'
+                + b'#include "../../utils.h"\n'
+            )
+        case "ARCInstPrinter.cpp":
+            return (
+                b'#include "../../SStream.h"\n'
+                + b'#include "../../MCInst.h"\n'
+                + b'#include "../../MCInstPrinter.h"\n'
+                + b'#include "ARCInfo.h"\n'
+                + b'#include "ARCInstPrinter.h"\n'
+                + b'#include "ARCLinkage.h"\n'
+                + b'#include "ARCMapping.h"\n'
+            )
+        case "ARCInstPrinter.h":
+            return b'#include "../../SStream.h"\n' + b'#include "../../MCInst.h"\n'
+    log.fatal(f"No includes given for ARC source file: {filename}")
+    exit(1)
 
 
 def get_general_macros():

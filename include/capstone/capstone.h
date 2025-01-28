@@ -103,6 +103,7 @@ typedef enum cs_arch {
 	CS_ARCH_HPPA, 		///< HPPA architecture
 	CS_ARCH_LOONGARCH, 	///< LoongArch architecture
 	CS_ARCH_XTENSA, 	///< Xtensa architecture
+	CS_ARCH_ARC, 	    ///< ARC architecture
 	CS_ARCH_MAX,
 	CS_ARCH_ALL = 0xFFFF, // All architectures - for cs_support()
 } cs_arch;
@@ -359,6 +360,7 @@ typedef struct cs_opt_skipdata {
 	/// BPF:       8 bytes.
 	/// TriCore:   2 bytes.
 	/// LoongArch: 4 bytes.
+	/// ARC: 	   2 bytes.
 	cs_skipdata_cb_t callback; 	// default value is NULL
 
 	/// User-defined data to be passed to @callback function pointer.
@@ -392,6 +394,7 @@ typedef struct cs_opt_skipdata {
 #include "hppa.h"
 #include "loongarch.h"
 #include "xtensa.h"
+#include "arc.h"
 
 #define MAX_IMPL_W_REGS 47
 #define MAX_IMPL_R_REGS 20
@@ -449,6 +452,7 @@ typedef struct cs_detail {
 		cs_hppa hppa; ///< HPPA architecture
 		cs_loongarch loongarch; ///< LoongArch architecture
 		cs_xtensa xtensa; ///< Xtensa architecture
+		cs_arc arc; ///< ARC architecture
 	};
 } cs_detail;
 
@@ -600,6 +604,8 @@ CAPSTONE_EXPORT
 void CAPSTONE_API cs_arch_register_alpha(void);
 CAPSTONE_EXPORT
 void CAPSTONE_API cs_arch_register_loongarch(void);
+CAPSTONE_EXPORT
+void CAPSTONE_API cs_arch_register_arc(void);
 
 /**
  This API can be used to either ask for archs supported by this library,
